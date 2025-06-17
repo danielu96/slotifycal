@@ -1,8 +1,9 @@
 import React from 'react'
+import Logo from './Logo';
 function Navbar() {
     return (
-        <div className='grid grid-cols-1 md:grid-cols-3 text-center shadow-md '>
-            <div>LOGO</div>
+        <div className='navcontainer flex flex-col sm:flex-row  sm:justify-between sm:items-center flex-wrap gap-4 py-8 shadow-md '>
+            <Logo />
             <div className='grid grid-cols-2'></div>
             <div >   menu      </div>
         </div>
