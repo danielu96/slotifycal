@@ -124,4 +124,8 @@
   .container {
     @apply mx-auto max-w-full xl:max-w-7xl max-h-max;
   }
+
+  .navcontainer {
+    @apply mx-auto max-w-full max-h-max xl:max-w-7xl px-8;
+  }
 }
