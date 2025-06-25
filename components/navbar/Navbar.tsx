@@ -5,15 +5,16 @@ import LinksDropdown from './LinksDropdown';
 function Navbar() {
     return (
         <>
-            <div className='w-full shadow-md '>
-                <div className='navcontainer flex sm-flex-col sm:flex-row justify-between  sm:items-center flex-wrap gap-4 py-8 '>
+            <nav className=' mx-0 px-2 top-0 z-50  transition-colors hover:text-foreground/80 text-foreground/55 shadow-md'>
+                <div className='navcontainer flex gap-4 py-3 justify-between '>
                     <Logo />
-                    <div className='grid grid-cols-2  justify-items-start '>
+                    <div className='flex gap-2'>
                         <DarkMode />
                         <LinksDropdown />
                     </div>
                 </div>
-            </div>
+            </nav>
+
         </>
     );
 }
