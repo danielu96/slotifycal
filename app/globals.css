@@ -120,12 +120,31 @@
   }
 }
 
+
 @layer components {
   .container {
-    @apply mx-auto max-w-full xl:max-w-7xl max-h-max;
+    @apply mx-auto w-full max-w-7xl;
   }
 
-  .navcontainer {
-    @apply mx-auto max-w-full max-h-max xl:max-w-7xl px-8;
+}
+
+.navcontainer {
+  @apply mx-auto max-w-full xl:max-w-7xl px-4 py-2;
+
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
 }

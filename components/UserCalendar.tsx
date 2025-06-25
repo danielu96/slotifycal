@@ -14,21 +14,22 @@ export default function UserCalendar() {
 
     return (
         <div className={cn("flex flex-col md:flex-row w-full h-full")}>
+
             {/* Kalendarz - zajmuje całą lewą kolumnę */}
-            <div className="flex justify-center w-full md:w-1/2 p-4">
+            <div className="flex justify-center w-full md:w-1/2 p-4 ">
                 <DayPicker
                     mode="single"
                     weekStartsOn={1}
                     disabled={(date) => date.getDay() === 0 || date < currentDate} // Blokowanie niedziel i dat wcześniejszych
                     classNames={{
-                        root: "relative flex justify-center min-h-[480px] p-4 overflow-hidden",
+                        root: "relative flex justify-center min-h-[480px] p-4 ",
                         nav: "flex items-center justify-between gap-2",
                         month_caption: "text-lg font-bold text-blue-600 flex-grow text-center -mt-10 mb-6",
-                        day: "p-4",
+                        day: "p-3 md:p-4",
                         month: "p-4 justify-center items-center",
                         today: "bg-red-500 text-white font-bold rounded-full",
                         selected: "bg-blue-500 border-amber-500 text-white rounded-full",
-                        table: "justify-center items-center text-center ",
+                        table: "justify-center items-center text-center w-full ",
                         weeks: "justify-center items-center text-center w-full h-full",
                         day_disabled: " cursor-not-allowed", // Styl dla zablokowanych dni
                     }}
@@ -47,8 +48,8 @@ export default function UserCalendar() {
             </div>
 
             {/* Wybór godziny - zawsze widoczny */}
-            <div className="relative flex flex-col items-center w-full md:w-1/2 p-4 border-l-0 md:border-l-2 border-gray-300 mb-3">
-                <h3 className="text-lg font-bold mb-4">
+            <div className="relative flex flex-col items-center w-full md:w-1/2 p-4 border-l-0 md:border-l-2 border-gray-300 mb-3 ">
+                <h3 className="text-lg font-bold text-center mb-4">
                     Wybrana data: {selectedDate ? selectedDate.toLocaleDateString() : "Wybierz dzień"}
                     {selectedTime && `, godzina: ${selectedTime}`}
                 </h3>
