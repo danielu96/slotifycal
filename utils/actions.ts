@@ -38,3 +38,9 @@ export const fetchProfile = async () => {
     if (!profile) return redirect('/profile/create');
     return profile;
 };
+const renderError = (error: unknown): { message: string } => {
+    console.log(error);
+    return {
+        message: error instanceof Error ? error.message : 'An error occurred',
+    };
+};
