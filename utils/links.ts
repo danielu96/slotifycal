@@ -4,7 +4,8 @@ type NavLink = {
 };
 
 export const links: NavLink[] = [
-    // { href: '/login ', label: 'Login' },
-    // { href: '/register ', label: 'Register' },
+    { href: '/', label: 'home' },
+    { href: '/profile ', label: 'Profile' },
+    { href: '/reservations ', label: 'Reservations' },
 
 ];
