@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { cn } from "@/lib/utils";
+import FormContainer from "./form/FormContainer";
+import { SubmitButton } from "./form/Buttons";
+import { createDateReservation } from "@/utils/actions";
 
 export default function UserCalendar() {
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
@@ -11,6 +14,15 @@ export default function UserCalendar() {
         setSelectedDate(date);
         setSelectedTime(undefined); // Resetuj godzinę po zmianie dnia
     };
+    const dateString = selectedDate
+        ? selectedDate.toISOString().split("T")[0]
+        : undefined;
+    const timeString = selectedTime;
+
+    const createReservation = createDateReservation.bind(null, {
+        date: dateString!,
+        time: timeString!,
+    });
 
     return (
         <div className={cn("flex flex-col md:flex-row w-full h-full")}>
@@ -68,6 +80,11 @@ export default function UserCalendar() {
                         </li>
                     ))}
                 </ul>
+                {selectedDate && selectedTime && (
+                    <FormContainer action={createReservation}>
+                        <SubmitButton text='Reserve' className='w-full' />
+                    </FormContainer>
+                )}
             </div>
         </div>
     );
