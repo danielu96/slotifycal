@@ -94,3 +94,32 @@ export const updateProfileImageAction = async (
         return renderError(error);
     }
 };
+export const createDateReservation = async (prevState: {
+    date: string;
+    time: string;
+}) => {
+    const user = await getAuthUser();
+
+    const { date, time } = prevState;
+
+    if (!user) {
+        return { message: "Brak zalogowanego użytkownika" };
+    }
+
+    try {
+        const dateObj = new Date(date)
+        const reservation = await db.reservation.create({
+            data: {
+                date: dateObj,
+                time, // "HH:mm"               
+                profileId: user.id,
+            },
+        });
+
+        // będą powiadomienie, e-mail, itd.
+    } catch (error) {
+        return renderError(error);
+    }
+
+    redirect("/reservations");
+};
