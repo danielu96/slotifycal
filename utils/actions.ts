@@ -123,3 +123,24 @@ export const createDateReservation = async (prevState: {
 
     redirect("/reservations");
 };
+export const fetchReservations = async () => {
+    const user = await getAuthUser();
+    const reservations = await db.reservation.findMany({
+        where: {
+            profileId: user.id,
+        },
+        include: {
+            profile: {
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                },
+            },
+        },
+        orderBy: {
+            time: 'desc',
+        },
+    });
+    return reservations;
+};
