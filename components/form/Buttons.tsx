@@ -39,33 +39,33 @@ export function SubmitButton({
         </Button>
     );
 }
-type actionType = 'edit' | 'delete';
-export const IconButton = ({ actionType }: { actionType: actionType }) => {
-    const { pending } = useFormStatus();
+type ActionType = 'edit' | 'delete';
+
+export const IconButton = ({ actionType }: { actionType: ActionType }) => {
+    const { pending } = useFormStatus()
 
     const renderIcon = () => {
         switch (actionType) {
             case 'edit':
-                return <LuSquare />;
+                return <LuSquare />
             case 'delete':
-                return <LuTrash2 />;
-            default:
-                const never: never = actionType;
-                throw new Error(`Invalid action type: ${never}`);
+                return <LuTrash2 />
         }
-    };
+    }
 
     return (
         <Button
-            type='submit'
-            size='icon'
-            variant='link'
-            className='p-2 cursor-pointer'
+            type="submit"
+            size="icon"
+            variant="link"
+            className="p-2 cursor-pointer"
+            disabled={pending}            // ← blokujemy tu
         >
-            {pending ? <ReloadIcon className=' animate-spin' /> : renderIcon()}
+            {pending ? <ReloadIcon className="animate-spin" /> : renderIcon()}
         </Button>
-    );
-};
+    )
+}
+
 export const CardSignInButton = () => {
     return (
         <SignInButton mode='modal'>
