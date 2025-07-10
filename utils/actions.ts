@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { validateWithZodSchema, imageSchema, profileSchema } from './schemas';
 import { uploadImage } from './supabase';
+import type { Reservation } from '@prisma/client';
 
 export const fetchProfileImage = async () => {
     const user = await currentUser();
@@ -20,15 +21,17 @@ export const fetchProfileImage = async () => {
     });
     return profile?.profileImage;
 };
+
 const getAuthUser = async () => {
     const user = await currentUser();
     if (!user) {
-        throw new Error('You must be logged in to access this route');
+        redirect('/profile/create');
     }
-    if (!user.privateMetadata.hasProfile) redirect('/profile/create');
+    if (!user.privateMetadata.hasProfile) {
+        redirect('/profile/create');
+    }
     return user;
 };
-
 
 export const fetchProfile = async () => {
     const user = await getAuthUser();
@@ -94,34 +97,32 @@ export const updateProfileImageAction = async (
         return renderError(error);
     }
 };
-export const createDateReservation = async (prevState: {
+
+export const createDateReservation = async ({
+    date,  // "YYYY-MM-DD"
+    time,
+}: {
     date: string;
     time: string;
-}) => {
+}): Promise<Reservation> => {
     const user = await getAuthUser();
+    if (!user) throw new Error("Brak zalogowanego użytkownika");
 
-    const { date, time } = prevState;
+    // 1. Rozbijamy string na liczby
+    const [year, month, day] = date.split("-").map(Number);
 
-    if (!user) {
-        return { message: "Brak zalogowanego użytkownika" };
-    }
+    // 2. Tworzymy lokalną datę (monthIndex = month - 1)
+    const reservationDate = new Date(year, month - 1, day);
 
-    try {
-        const dateObj = new Date(date)
-        const reservation = await db.reservation.create({
-            data: {
-                date: dateObj,
-                time, // "HH:mm"               
-                profileId: user.id,
-            },
-        });
+    const reservation = await db.reservation.create({
+        data: {
+            date: reservationDate,
+            time,
+            profileId: user.id,
+        },
+    });
 
-        // będą powiadomienie, e-mail, itd.
-    } catch (error) {
-        return renderError(error);
-    }
-
-    redirect("/reservations");
+    return reservation;
 };
 export const fetchReservations = async () => {
     const user = await getAuthUser();
@@ -129,7 +130,14 @@ export const fetchReservations = async () => {
         where: {
             profileId: user.id,
         },
-        include: {
+
+        select: {
+            id: true,
+            profileId: true,
+            createdAt: true,
+            updatedAt: true,
+            date: true,
+            time: true,
             profile: {
                 select: {
                     id: true,
@@ -139,8 +147,30 @@ export const fetchReservations = async () => {
             },
         },
         orderBy: {
-            time: 'desc',
+            date: "desc",
         },
     });
+
     return reservations;
+};
+
+
+export const deleteReservationAction = async (prevState: { reservationId: string }) => {
+    const { reservationId } = prevState;
+    const user = await getAuthUser();
+
+    try {
+        const result = await db.reservation.delete({
+            where: {
+                id: reservationId,
+                profileId: user.id,
+            },
+        });
+        revalidatePath('/reservations');
+        console.log('Reservation deletedededed');
+        return { message: 'Reservation deleted successfully ok' }
+    } catch (error) {
+        return { message: "Wystąpił błąd podczas usuwania" };
+        // return renderError(error);
+    }
 };
