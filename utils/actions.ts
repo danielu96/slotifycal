@@ -97,7 +97,6 @@ export const updateProfileImageAction = async (
         return renderError(error);
     }
 };
-
 export const createDateReservation = async ({
     date,  // "YYYY-MM-DD"
     time,
@@ -108,11 +107,16 @@ export const createDateReservation = async ({
     const user = await getAuthUser();
     if (!user) throw new Error("Brak zalogowanego użytkownika");
 
-    // 1. Rozbijamy string na liczby
+    // rozbijamy string → liczby
     const [year, month, day] = date.split("-").map(Number);
 
-    // 2. Tworzymy lokalną datę (monthIndex = month - 1)
+    // 1️⃣ TWORZYMY LOKALNĄ PÓŁNOC
+    //    new Date(year,monthIndex,day) = lokalne 00:00:00
     const reservationDate = new Date(year, month - 1, day);
+
+    console.log("→ front wybrał:", date);
+    console.log("→ lokalne midnight:", reservationDate.toString());
+    // powinno być np. "Thu Jul 31 2025 00:00:00 GMT+0200"
 
     const reservation = await db.reservation.create({
         data: {
@@ -122,8 +126,12 @@ export const createDateReservation = async ({
         },
     });
 
+    console.log("💾 zapisane w DB:", reservation.date.toISOString());
+
+
     return reservation;
 };
+
 export const fetchReservations = async () => {
     const user = await getAuthUser();
     const reservations = await db.reservation.findMany({
