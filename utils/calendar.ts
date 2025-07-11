@@ -1,5 +1,20 @@
 import { Reservation } from '@prisma/client';
 
+import { format } from 'date-fns';
+
+export function groupReservationsByDate(
+    reservations: Reservation[]
+): Record<string, string[]> {
+    return reservations.reduce<Record<string, string[]>>((acc, r) => {
+        const d = new Date(r.date);
+        d.setHours(0, 0, 0, 0);
+        const key = format(d, "yyyy-MM-dd");   // LOKALNIE
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(r.time);
+        return acc;
+    }, {});
+}
+
 export const extractBlockedDates = (
     reservations: Reservation[],
     today = new Date()
