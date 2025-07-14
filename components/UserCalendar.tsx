@@ -7,7 +7,7 @@ import FormContainer from "./form/FormContainer";
 import { SubmitButton } from "./form/Buttons";
 import { createDateReservation } from "@/utils/actions";
 import { useToast } from "@/components/hooks/use-toast";
-import { useProperty } from "@/utils/store";
+import { useCalendarStore } from '@/utils/store';
 import { groupReservationsByDate } from "@/utils/calendar";
 const pad2 = (n: number) => n.toString().padStart(2, "0");
 
@@ -25,8 +25,8 @@ export default function UserCalendar() {
     today.setHours(0, 0, 0, 0);
 
     // Reservations store + helper map
-    const reservations = useProperty((s) => s.reservations);
-    const addReservation = useProperty((s) => s.addReservation);
+    const reservations = useCalendarStore((s) => s.reservations);
+    const setReservations = useCalendarStore((s) => s.setReservations);
     const reservedMap = groupReservationsByDate(reservations);
 
     // All slots
@@ -83,7 +83,7 @@ export default function UserCalendar() {
             date: dateString,
             time: selectedTime,
         });
-        addReservation(newRes);
+        reservations;
         toast({
             title: "Sukces",
             description: "Rezerwacja utworzona pomyślnie.",

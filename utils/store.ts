@@ -1,24 +1,14 @@
 import { create } from 'zustand';
-import type { Reservation } from './types';
+import { Reservation } from './types';
 
-type PropertyState = {
+type CalendarState = {
     reservations: Reservation[];
-
-    // akcja do pełnego ustawiania listy
     setReservations: (r: Reservation[]) => void;
-
-    // akcja do dodawania jednej rezerwacji
-    addReservation: (r: Reservation) => void;
 };
 
-export const useProperty = create<PropertyState>((set) => ({
+export const useCalendarStore = create<CalendarState>((set) => ({
     reservations: [],
-
-    setReservations: (reservations) =>
-        set(() => ({ reservations })),
-
-    addReservation: (reservation) =>
-        set((state) => ({ reservations: [...state.reservations, reservation] })),
+    setReservations: (r) => set({ reservations: r }),
 }));
 
 
