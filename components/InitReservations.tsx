@@ -1,12 +1,22 @@
 import { useEffect } from "react";
-import { useProperty } from "@/utils/store";
-import { fetchReservations } from "@/utils/actions";
+import { useCalendarStore } from "@/utils/store";
+import { fetchAllReservations } from "@/utils/actions";
 
 export function InitReservations() {
-    const setReservations = useProperty((s) => s.setReservations);
+    const setReservations = useCalendarStore((s) => s.setReservations);
+
 
     useEffect(() => {
-        fetchReservations().then(setReservations);
+        async function load() {
+            try {
+                const data = await fetchAllReservations();
+                console.log("ALL RESERVATIONS:", data);
+                setReservations(data);
+            } catch (err) {
+                console.error("Failed to load reservations", err);
+            }
+        }
+        load();
     }, [setReservations]);
 
     return null;

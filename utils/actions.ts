@@ -161,6 +161,21 @@ export const fetchReservations = async () => {
 
     return reservations;
 };
+export const fetchAllReservations = async () => {
+    return db.reservation.findMany({
+
+        select: {
+            id: true,
+            profileId: true,
+            createdAt: true,
+            updatedAt: true,
+            date: true,
+            time: true,
+            profile: { select: { id: true, firstName: true, lastName: true } },
+        },
+        orderBy: { date: "desc" },
+    });
+};
 
 
 export const deleteReservationAction = async (prevState: { reservationId: string }) => {
