@@ -8,6 +8,8 @@ export default async function ReservationsPage() {
     return (
         <>
             <div className="container mx-auto p-4">
+                <h1 className="text-2xl font-bold mb-4">Your Reservations</h1>
+                <p className="mb-4">You have {reservations.length} reservations.</p>
                 {reservations.length ? (
                     <ul className="space-y-4">
                         {reservations.map((r) => (
@@ -33,6 +35,8 @@ export default async function ReservationsPage() {
         </>
     );
 }
+
+
 
 
 
