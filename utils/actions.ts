@@ -191,9 +191,51 @@ export const deleteReservationAction = async (prevState: { reservationId: string
         });
         revalidatePath('/reservations');
         console.log('Reservation deletedededed');
-        return { message: 'Reservation deleted successfully ok' }
+        return { message: 'Reservation deleted successfully Nextjs' }
     } catch (error) {
         return { message: "Wystąpił błąd podczas usuwania" };
         // return renderError(error);
     }
+};
+export async function fetchTests() {
+    const res = await fetch('http://localhost:4000/reservations', {
+        // server components domyślnie cache’ują odpowiedź
+        // ustaw cache: 'no-store', jeśli chcesz zawsze świeże dane
+        cache: 'no-store',
+    });
+
+    if (!res.ok) {
+        throw new Error('Failed to fetch tests from NestJS');
+    }
+    return res.json();
+}
+
+export const deleteReservationAct = async ({
+    reservationId,
+}: {
+    reservationId: string;
+}) => {
+    // jeśli masz w .env zmienną np. NEST_API_URL = http://localhost:4000
+    const base = process.env.NEST_API_URL ?? 'http://localhost:4000';
+
+    const res = await fetch(`${base}/reservations/${reservationId}`, {
+        method: 'DELETE',
+        // Jeżeli używasz JWT/ciasteczek, dodaj tu nagłówki Authorization
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        // wymuś świeże żądanie, nie z cache
+        cache: 'no-store',
+    });
+
+    if (!res.ok) {
+        // możesz sparsować odpowiedź z NestJS, żeby pokazać szczegóły błędu
+        const err = await res.json();
+        return { message: err.message ?? 'Błąd usuwania z NestJS' };
+    }
+
+    // odśwież ścieżkę /reservations w Next.js
+    revalidatePath('/reservations');
+
+    return { message: 'Reservation deleted successfully from NestJS' };
 };

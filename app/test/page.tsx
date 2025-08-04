@@ -1,6 +1,7 @@
+
 import React from "react";
 import { fetchReservations } from "@/utils/actions";
-import DeleteReservation from "@/components/DeleteResrvation";
+import DeleteReservation from "@/components/DelRes";
 
 export default async function ReservationsPage() {
     const reservations = await fetchReservations();
@@ -35,6 +36,7 @@ export default async function ReservationsPage() {
         </>
     );
 }
+
 
 
 

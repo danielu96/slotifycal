@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 import { useFormStatus } from "react-dom";
-import { deleteReservationAct } from "@/utils/actions";
+import { deleteReservationAction } from "@/utils/actions";
 import { IconButton } from "@/components/form/Buttons";
 
 export default function DeleteReservation({
@@ -19,7 +19,7 @@ export default function DeleteReservation({
     return (
         <form
             action={async () => {
-                const res = await deleteReservationAct({ reservationId });
+                const res = await deleteReservationAction({ reservationId });
                 if (res?.message) {
                     toast.success(res.message);
                     router.refresh();
