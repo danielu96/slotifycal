@@ -1,3 +1,7 @@
+# [submodule "server"]
+# 	path = server
+# 	url = ./server
+
 [submodule "server"]
-	path = server
-	url = ./server
+  path = server
+  url = https://github.com/danielu96/server.git
