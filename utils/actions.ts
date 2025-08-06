@@ -1,4 +1,5 @@
 'use server';
+import { Prisma } from '@prisma/client';
 import db from './db';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import { revalidatePath } from 'next/cache';
@@ -6,6 +7,8 @@ import { redirect } from 'next/navigation';
 import { validateWithZodSchema, imageSchema, profileSchema } from './schemas';
 import { uploadImage } from './supabase';
 import type { Reservation } from '@prisma/client';
+import { dayNames, monthNames, isValidDateString, parseDateFromQuery } from '@/utils/dateHelpers';
+
 
 export const fetchProfileImage = async () => {
     const user = await currentUser();
@@ -131,36 +134,74 @@ export const createDateReservation = async ({
 
     return reservation;
 };
-
-export const fetchReservations = async () => {
+export interface FetchReservationsProps {
+    query?: string;
+    page?: number;
+    perPage?: number;
+}
+export const fetchReservations = async ({
+    query,
+    page = 1,
+    perPage = 5,
+}: {
+    query?: string;
+    page?: number;
+    perPage?: number;
+}) => {
     const user = await getAuthUser();
-    const reservations = await db.reservation.findMany({
-        where: {
-            profileId: user.id,
-        },
 
-        select: {
-            id: true,
-            profileId: true,
-            createdAt: true,
-            updatedAt: true,
-            date: true,
-            time: true,
-            profile: {
-                select: {
-                    id: true,
-                    firstName: true,
-                    lastName: true,
-                },
+    const where: Prisma.ReservationWhereInput = {
+        profileId: user.id,
+    };
+
+    const filters: Prisma.ReservationWhereInput[] = [];
+
+    const safeQuery = query?.trim().toLowerCase();
+
+    if (safeQuery) {
+        filters.push({ time: { contains: safeQuery, mode: 'insensitive' } });
+
+        // if (isValidDateString(safeQuery)) {
+        //     filters.push({ date: { equals: new Date(safeQuery) } });
+        // }
+        const parsedDate = parseDateFromQuery(safeQuery);
+        if (parsedDate) {
+            filters.push({ date: { equals: parsedDate } });
+        }
+
+
+        filters.push({ profile: { firstName: { contains: safeQuery, mode: 'insensitive' } } });
+        filters.push({ profile: { lastName: { contains: safeQuery, mode: 'insensitive' } } });
+
+        where.OR = filters;
+    }
+
+    const skip = (page - 1) * perPage;
+
+    const [reservations, totalCount] = await Promise.all([
+        db.reservation.findMany({
+            where,
+            select: {
+                id: true,
+                date: true,
+                time: true,
+                profile: { select: { firstName: true, lastName: true } },
             },
-        },
-        orderBy: {
-            date: "desc",
-        },
-    });
+            orderBy: { date: 'desc' },
+            skip,
+            take: perPage,
+        }),
+        db.reservation.count({ where }),
+    ]);
 
-    return reservations;
+    const totalPages = Math.ceil(totalCount / perPage);
+
+    return { reservations, totalCount, totalPages };
 };
+
+
+
+
 export const fetchAllReservations = async () => {
     return db.reservation.findMany({
 
