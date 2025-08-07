@@ -19,7 +19,7 @@ export default async function ReservationsPage({
 
 
     return (
-        <div className="p-8">
+        <div className="p-1">
             <Search placeholder="Search reservations..." />
             <h1 className="text-2xl font-bold mb-4 mt-4">Your Reservations</h1>
             <ReservationsTable
