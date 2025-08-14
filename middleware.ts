@@ -4,6 +4,7 @@ const isProtectedRoute = createRouteMatcher([
     '/reservations(.*)',
     '/profile(.*)',
     '/test(.*)',
+    '/admin(.*)',
 
 ]);
 
