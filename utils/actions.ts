@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { validateWithZodSchema, imageSchema, profileSchema } from './schemas';
 import { uploadImage } from './supabase';
-import type { Reservation } from '@prisma/client';
+import type { Reservation } from './types';
 import { dayNames, monthNames, isValidDateString, parseDateFromQuery } from '@/utils/dateHelpers';
 
 
@@ -217,6 +217,26 @@ export const fetchAllReservations = async () => {
         orderBy: { date: "desc" },
     });
 };
+export async function fetchTests() {
+    const base = process.env.NEXT_PUBLIC_NEST_URL ?? 'http://localhost:4000';
+    const res = await fetch(`${base}/reservations`, {
+        cache: 'no-store',
+    });
+
+    // Najpierw parsujemy odpowiedź
+    const json = await res.json();
+
+    // Rzucamy błąd, jeśli coś poszło nie tak
+    if (!res.ok) {
+        throw new Error(json.message ?? 'Błąd pobierania rezerwacji z NestJS');
+    }
+
+    // Zalogowanie komunikatu z NestJS po stronie serwera
+    console.log('Next.js (server):', json.message);
+
+    // Zwracamy dane do komponentu
+    return json.data;
+}
 
 
 export const deleteReservationAction = async (prevState: { reservationId: string }) => {
@@ -238,45 +258,82 @@ export const deleteReservationAction = async (prevState: { reservationId: string
         // return renderError(error);
     }
 };
-export async function fetchTests() {
-    const res = await fetch('http://localhost:4000/reservations', {
-        // server components domyślnie cache’ują odpowiedź
-        // ustaw cache: 'no-store', jeśli chcesz zawsze świeże dane
-        cache: 'no-store',
-    });
-
-    if (!res.ok) {
-        throw new Error('Failed to fetch tests from NestJS');
-    }
-    return res.json();
-}
 
 export const deleteReservationAct = async ({
     reservationId,
 }: {
     reservationId: string;
 }) => {
-    // jeśli masz w .env zmienną np. NEST_API_URL = http://localhost:4000
     const base = process.env.NEST_API_URL ?? 'http://localhost:4000';
 
+    // 1. Wyślij żądanie do NestJS
     const res = await fetch(`${base}/reservations/${reservationId}`, {
         method: 'DELETE',
-        // Jeżeli używasz JWT/ciasteczek, dodaj tu nagłówki Authorization
+        // jeśli korzystasz z ciasteczek do autoryzacji:
+        // credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
+            // Authorization: `Bearer ${yourJwtToken}`,
         },
-        // wymuś świeże żądanie, nie z cache
         cache: 'no-store',
     });
 
+    // 2. Odczytaj odpowiedź (zawsze parsuj JSON zanim sprawdzisz status)
+    const data = await res.json();
+
+    // 3. Obsłuż błąd z NestJS
     if (!res.ok) {
-        // możesz sparsować odpowiedź z NestJS, żeby pokazać szczegóły błędu
-        const err = await res.json();
-        return { message: err.message ?? 'Błąd usuwania z NestJS' };
+        // data.message pochodzi z kontrolera NestJS
+        throw new Error(data.message ?? 'Błąd usuwania z NestJS');
     }
 
-    // odśwież ścieżkę /reservations w Next.js
+    // 4. Zadbaj o odświeżenie podstrony /reservations
     revalidatePath('/reservations');
 
-    return { message: 'Reservation deleted successfully from NestJS' };
+    // 5. Zwrotka do frontendu (zwrócony obiekt z NestJS)
+    return data; // np. { message: 'Usunięto pomyślnie' }
 };
+export async function fetchSearchResults({
+    query,
+    date,
+    time,
+}: {
+    query?: string;
+    date?: string;  // format YYYY-MM-DD
+    time?: string;  // format HH:mm
+}): Promise<Reservation[]> {
+    // 1. Zbuduj parametry zapytania
+    const params = new URLSearchParams();
+    if (query) params.set('query', query);
+    if (date) params.set('date', date);
+    if (time) params.set('time', time);
+
+    // 2. Wyślij request
+    const url = `${process.env.NEXT_PUBLIC_NEST_URL}/reservations/search?${params.toString()}`;
+    console.log('🔗 Fetching URL:', url);
+    const res = await fetch(url);
+    console.log('📡 Response status:', res.status, res.statusText);
+    if (!res.ok) throw new Error('Failed to fetch search results');
+
+    // 3. Parsowanie odpowiedzi
+    const raw: any[] = await res.json();
+    return raw.map(item => ({
+        id: item.id,
+        profileId: item.profileId,
+        createdAt: typeof item.createdAt === 'string'
+            ? item.createdAt
+            : item.createdAt.toISOString(),
+        updatedAt: typeof item.updatedAt === 'string'
+            ? item.updatedAt
+            : item.updatedAt.toISOString(),
+        date: typeof item.date === 'string'
+            ? item.date
+            : item.date.toISOString(),
+        time: item.time,
+        profile: {
+            id: item.profile.id,
+            firstName: item.profile.firstName,
+            lastName: item.profile.lastName,
+        },
+    }));
+}
