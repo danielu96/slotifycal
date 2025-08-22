@@ -259,40 +259,54 @@ export const deleteReservationAction = async (prevState: { reservationId: string
     }
 };
 
-export const deleteReservationAct = async ({
-    reservationId,
-}: {
-    reservationId: string;
-}) => {
+// export const deleteReservationAct = async ({
+//     reservationId,
+// }: {
+//     reservationId: string;
+// }) => {
+//     const base = process.env.NEST_API_URL ?? 'http://localhost:4000';
+
+//     // 1. Wyślij żądanie do NestJS
+//     const res = await fetch(`${base}/reservations/${reservationId}`, {
+//         method: 'DELETE',
+//         // jeśli korzystasz z ciasteczek do autoryzacji:
+//         // credentials: 'include',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             // Authorization: `Bearer ${yourJwtToken}`,
+//         },
+//         cache: 'no-store',
+//     });
+
+//     // 2. Odczytaj odpowiedź (zawsze parsuj JSON zanim sprawdzisz status)
+//     const data = await res.json();
+
+//     // 3. Obsłuż błąd z NestJS
+//     if (!res.ok) {
+//         // data.message pochodzi z kontrolera NestJS
+//         throw new Error(data.message ?? 'Błąd usuwania z NestJS');
+//     }
+
+//     // 4. Zadbaj o odświeżenie podstrony /reservations
+//     revalidatePath('/reservations');
+
+//     // 5. Zwrotka do frontendu (zwrócony obiekt z NestJS)
+//     return data; // np. { message: 'Usunięto pomyślnie' }
+// };
+
+export async function deleteReservationAct({ reservationId }: { reservationId: string }) {
     const base = process.env.NEST_API_URL ?? 'http://localhost:4000';
-
-    // 1. Wyślij żądanie do NestJS
-    const res = await fetch(`${base}/reservations/${reservationId}`, {
-        method: 'DELETE',
-        // jeśli korzystasz z ciasteczek do autoryzacji:
-        // credentials: 'include',
-        headers: {
-            'Content-Type': 'application/json',
-            // Authorization: `Bearer ${yourJwtToken}`,
-        },
-        cache: 'no-store',
-    });
-
-    // 2. Odczytaj odpowiedź (zawsze parsuj JSON zanim sprawdzisz status)
-    const data = await res.json();
-
-    // 3. Obsłuż błąd z NestJS
-    if (!res.ok) {
-        // data.message pochodzi z kontrolera NestJS
-        throw new Error(data.message ?? 'Błąd usuwania z NestJS');
+    const res = await fetch(`${base}/reservations/${reservationId}`, { method: 'DELETE' })
+    const data = await res.json()
+    return {
+        ok: res.ok,
+        message: data.message as string,
     }
+}
 
-    // 4. Zadbaj o odświeżenie podstrony /reservations
-    revalidatePath('/reservations');
 
-    // 5. Zwrotka do frontendu (zwrócony obiekt z NestJS)
-    return data; // np. { message: 'Usunięto pomyślnie' }
-};
+
+
 export async function fetchSearchResults({
     query,
     date,
