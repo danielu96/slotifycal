@@ -26,7 +26,8 @@ export default async function TestPage() {
                                 <p className="text-sm text-gray-500">
                                     Date: {new Date(r.date).toLocaleDateString()}
                                 </p>
-
+                                {/* 2. Testowy błąd 500 Internal Server Error */}
+                                {/* <DeleteReservation reservationId="force-internal" key="force-internal" /> */}
                                 <DeleteReservation reservationId={r.id} />
                             </li>
                         ))}
