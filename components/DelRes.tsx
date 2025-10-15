@@ -1,35 +1,47 @@
-"use client";
+'use client'
+import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import toast from 'react-hot-toast'
+import { deleteReservationAct } from '@/utils/actions'
+import { IconButton } from '@/components/form/Buttons'
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+export default function DeleteReservation({ reservationId }: { reservationId: string }) {
+    const [isPending, startTransition] = useTransition()
+    const router = useRouter()
 
-import { useFormStatus } from "react-dom";
-import { deleteReservationAction } from "@/utils/actions";
-import { IconButton } from "@/components/form/Buttons";
+    const handleDelete = async () => {
+        if (!confirm('Na pewno usunąć tę rezerwację?')) return
 
-export default function DeleteReservation({
-    reservationId,
-}: {
-    reservationId: string;
-}) {
-    const { pending } = useFormStatus();
-    const router = useRouter();
+        try {
+            const result = await deleteReservationAct({ reservationId })
+            if (!result.ok) throw new Error(result.message || 'Nieznany błąd')
+
+            toast.success(result.message)
+            startTransition(() => router.refresh())
+        } catch (err: any) {
+            toast.error(err.message)
+        }
+    }
 
     return (
-        <form
-            action={async () => {
-                const res = await deleteReservationAction({ reservationId });
-                if (res?.message) {
-                    toast.success(res.message);
-                    router.refresh();
-                } else {
-                    toast.error("Coś poszło nie tak.");
-                }
-            }}
+        // <button
+        //     onClick={handleDelete}
+        //     disabled={isPending}
+        //     title="Usuń rezerwację"
+        //     aria-busy={isPending}
+        //     className="flex items-center space-x-2"
+        // >
+        //     <IconButton actionType="delete" />
+        // </button>
+        <span
+            role="button"
+            onClick={handleDelete}
+            tabIndex={0}
+            onKeyDown={e => e.key === 'Enter' && handleDelete()}
+            className="inline-flex cursor-pointer"
+            aria-busy={isPending}
         >
             <IconButton actionType="delete" />
-
-        </form>
-    );
+        </span>
+    )
 }

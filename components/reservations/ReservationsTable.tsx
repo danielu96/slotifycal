@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import DeleteReservation from '@/components/DeleteResrvation';
+import DeleteReservation from '@/components/DelRes';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 export default function ReservationsTable({
@@ -39,6 +39,9 @@ export default function ReservationsTable({
                                 </p>
                             </div>
                             <DeleteReservation reservationId={r.id} />
+                            {/* 1. Testowy błąd 404 Not Found */}
+                            {/* <DeleteReservation reservationId="force-error" key="force-error" /> */}
+
                         </li>
                     ))}
                 </ul>
